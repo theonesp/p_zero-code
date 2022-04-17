@@ -1,5 +1,5 @@
 
--- Converting from wide to long format
+-- Converting r_monitor_parsed data from wide to long format
 
 CREATE CHARTEVENTS AS
 
