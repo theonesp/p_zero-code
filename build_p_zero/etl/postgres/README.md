@@ -1,1 +1,1 @@
-These scripts perform changes in stage_sild data to create the raw version of p_zero.
+These scripts perform changes in stage_sild tables to create the raw tables of p_zero.
