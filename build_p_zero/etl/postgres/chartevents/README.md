@@ -1,5 +1,5 @@
 Chartevents is updated daily running a stored procedure called `chartevents_update` using a cron.
-
+```
 # Edit this file to introduce tasks to be run by cron.
 #
 # Each task to run has to be defined through a single line
@@ -20,4 +20,4 @@ Chartevents is updated daily running a stored procedure called `chartevents_upda
 # at 5 a.m every week with:
 # 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
 0 5 * * 1 PGPASSWORD=passwordgoeshere psql open_periocare postgres; CALL chartevents_update;
-
+```
