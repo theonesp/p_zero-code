@@ -1,1 +1,1 @@
-Chartevents is updated daily running a stored procedure call chartevents_update using a cron.
+Chartevents is updated daily running a stored procedure called `chartevents_update` using a cron.
