@@ -50,7 +50,7 @@ CREATE TABLE  r_monitor(
 CREATE TABLE stage_sild.znt_score_tp
 AS SELECT
 	id_score AS score_id,
-	CONCAT(date,hora) AS result_date,
+	CONCAT(date,' ',hora) AS result_date,
 	patnr,
 	id AS patient_ref,
 	care_level_ref,
