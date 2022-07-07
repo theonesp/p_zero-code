@@ -231,4 +231,5 @@ WHERE
 	temp_axi IS NOT NULL
 ORDER BY
 	patnr,
-	result_date
+	result_date;
+ALTER TABLE  p_zero_phi.monitor_events_phi ADD COLUMN monitor_events_phi_id BIGSERIAL PRIMARY KEY;	
