@@ -1,6 +1,19 @@
--- data_scope.znt_score definition
+-- -------------------------------------------------------------------------------
+--
+-- Create data_scope tables
+--
+-- -------------------------------------------------------------------------------
 
--- Drop table
+--------------------------------------------------------
+--  File created - 08/03/2022
+--------------------------------------------------------
+
+-- If running scripts individually, you can set the schema where all tables are created as follows:
+SET search_path TO data_scope; -- or your schema name
+
+--------------------------------------------------------
+--  DDL for Table data_scope.znt_score
+--------------------------------------------------------
 
 -- DROP TABLE data_scope.znt_score;
 
