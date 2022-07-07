@@ -1,6 +1,6 @@
 -- -------------------------------------------------------------------------------
 --
--- Create stage_sild tables
+-- Create p_zero_stage tables
 --
 -- -------------------------------------------------------------------------------
 
@@ -9,7 +9,7 @@
 --------------------------------------------------------
 
 -- If running scripts individually, you can set the schema where all tables are created as follows:
-SET search_path TO stage_sild; -- or your schema name
+SET search_path TO p_zero_stage; -- or your schema name
 
 --------------------------------------------------------
 --  DDL for Table r_monitor
@@ -47,7 +47,7 @@ CREATE TABLE  r_monitor(
 
 -- This table extracts the value for each vital sign from the table data_scope.znt_score using regexp and performs some transformations.
 
-CREATE TABLE stage_sild.znt_score_tp
+CREATE TABLE p_zero_stage.znt_score_tp
 AS SELECT
 	id_score AS score_id,
 	CONCAT(date,' ',hora) AS result_date,
@@ -75,5 +75,5 @@ AS SELECT
 	aillat AS group_flag
 FROM
 	data_scope.znt_score;	
-ALTER TABLE  stage_sild.znt_score_tp ADD COLUMN znt_score_tp_id BIGSERIAL PRIMARY KEY;	
+ALTER TABLE  p_zero_stage.znt_score_tp ADD COLUMN znt_score_tp_id BIGSERIAL PRIMARY KEY;	
 
