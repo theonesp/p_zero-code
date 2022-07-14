@@ -36,3 +36,16 @@ CREATE TABLE data_scope.znt_score (
 	ou_med_ref int4 NULL,
 	care_level_ref int4 NULL
 );
+
+--------------------------------------------------------
+--  DDL for Table data_scope.demog
+--------------------------------------------------------
+
+-- DROP TABLE data_scope.demog;
+
+CREATE TABLE data_scope.demog(
+   patient_ref INTEGER 
+  ,birth_date  VARCHAR
+  ,sex         INTEGER 
+  ,nation_ref  VARCHAR
+);
