@@ -50,7 +50,7 @@ CREATE TABLE  r_monitor(
 CREATE TABLE p_zero_stage.znt_score_tp
 AS SELECT
 	id_score AS score_id,
-	CONCAT(date,' ',hora) AS result_date,
+	CONCAT(date,' ',hora)::timestamp AS result_date,
 	patnr,
 	id AS patient_ref,
 	care_level_ref,
