@@ -12,7 +12,7 @@ usuari,
 vpid,
 data,
 hora,
-',i,'AS item_id,   
+',i,'AS reg_clin_ref,   
 ',vitals[i],'AS value
 FROM
 stage_sild.r_monitor_parsed
