@@ -1,4 +1,4 @@
-Chartevents is updated daily running a stored procedure called `chartevents_update` using a cron.
+monitor_events_phi is updated daily running a stored procedure called `chartevents_update` using a cron.
 ```
 # Edit this file to introduce tasks to be run by cron.
 #
