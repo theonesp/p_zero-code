@@ -49,3 +49,14 @@ CREATE TABLE data_scope.demog(
   ,sex         INTEGER 
   ,nation_ref  VARCHAR
 );
+
+--------------------------------------------------------
+--  DDL for Table data_scope.nation_dic
+--------------------------------------------------------
+
+-- DROP TABLE data_scope.nation_dic;
+CREATE TABLE data_scope.nation_dic(
+   natio_ref VARCHAR
+  ,label      VARCHAR
+  ,TT        VARCHAR
+);
