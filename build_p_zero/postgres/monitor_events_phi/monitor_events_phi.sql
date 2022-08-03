@@ -26,7 +26,7 @@ SELECT
 	conc_state AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	conc_state IS NOT NULL
 UNION ALL
@@ -46,7 +46,7 @@ SELECT
 	hr_ecg AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	hr_ecg IS NOT NULL
 UNION ALL
@@ -66,7 +66,7 @@ SELECT
 	hr_osc AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	hr_osc IS NOT NULL
 UNION ALL
@@ -86,7 +86,7 @@ SELECT
 	rr_ip AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	rr_ip IS NOT NULL
 UNION ALL
@@ -106,7 +106,7 @@ SELECT
 	rr AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	rr IS NOT NULL
 UNION ALL
@@ -126,7 +126,7 @@ SELECT
 	o2_sup AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	o2_sup IS NOT NULL
 UNION ALL
@@ -146,7 +146,7 @@ SELECT
 	pa_s AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	pa_s IS NOT NULL
 UNION ALL
@@ -166,7 +166,7 @@ SELECT
 	presn AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	presn IS NOT NULL
 UNION ALL
@@ -186,7 +186,7 @@ SELECT
 	pulsiox AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	pulsiox IS NOT NULL
 UNION ALL
@@ -206,7 +206,7 @@ SELECT
 	pulse AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	pulse IS NOT NULL
 UNION ALL
@@ -226,7 +226,7 @@ SELECT
 	temp_axi AS value,
 	group_flag
 FROM
-	stage_sild.znt_score_tp
+	p_zero_stage.znt_score_tp
 WHERE
 	temp_axi IS NOT NULL
 ORDER BY
