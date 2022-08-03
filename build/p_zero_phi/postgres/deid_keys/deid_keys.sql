@@ -1,6 +1,6 @@
 -- -------------------------------------------------------------------------------
 --
--- Create p_zero_phi tables
+-- Create covidhm tables
 --
 -- -------------------------------------------------------------------------------
 
@@ -15,16 +15,21 @@ SET search_path TO p_zero_phi; -- or your schema name
 --  DDL for Table antibiograma
 --------------------------------------------------------
 
-DROP TABLE IF EXISTS p_zero_phi.dic_items;
-CREATE TABLE p_zero_phi.dic_items
+DROP TABLE IF EXISTS p_zero_phi.deid_keys;
+CREATE TABLE p_zero_phi.deid_keys
 (
-  itemid INTEGER NOT NULL,
-  label VARCHAR(100) NOT NULL,
-  abbreviation VARCHAR(50) NOT NULL,
-  linksto VARCHAR(30) NOT NULL,
-  category VARCHAR(50) NOT NULL,
-  unitname VARCHAR(50),
-  param_type VARCHAR(20) NOT NULL,
-  lownormalvalue FLOAT,
-  highnormalvalue FLOAT
+WITH unique_patients AS
+	(
+SELECT
+		DISTINCT patient_id AS patient_id
+FROM
+		p_zero_stage.znt_score_tp
+	)
+	SELECT 
+	patient_id,
+	patient_id + floor(random()*(100000000-1 + 1))+ 1 AS patient_deid,
+	(floor(random()*(1000000-1 + 1))+ 1)* 7 AS week_multiples
+FROM
+	unique_patients
 );
+
