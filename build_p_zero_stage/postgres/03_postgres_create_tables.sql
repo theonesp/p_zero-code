@@ -43,7 +43,7 @@ CREATE TABLE  r_monitor(
 --------------------------------------------------------
 
 -- Drop table
--- DROP TABLE stage_sild.znt_score_tp source
+--DROP TABLE p_zero_stage.znt_score_tp;
 
 -- This table extracts the value for each vital sign from the table data_scope.znt_score using regexp and performs some transformations.
 
@@ -51,7 +51,7 @@ CREATE TABLE p_zero_stage.znt_score_tp
 AS SELECT
 	id_score AS score_id,
 	CONCAT(date,' ',hora)::timestamp AS result_date,
-	patnr,
+	patient_id,
 	id AS patient_ref,
 	care_level_ref,
 	ou_med_ref,
