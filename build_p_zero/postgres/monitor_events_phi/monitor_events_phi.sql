@@ -7,14 +7,14 @@
 --------------------------------------------------------
 
 -- DROP TABLE 
--- DROP TABLE p_zero_phi.monitor_events_phi
+-- DROP TABLE p_zero_phi.monitor_events_phi;
 
 CREATE TABLE p_zero_phi.monitor_events_phi
 AS 
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -34,7 +34,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -54,7 +54,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -74,7 +74,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -94,7 +94,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -114,7 +114,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -134,7 +134,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -154,7 +154,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -174,7 +174,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -194,7 +194,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -214,7 +214,7 @@ UNION ALL
 SELECT
 	znt_score_tp_id,
 	score_id,
-	patnr,
+	patient_id,
 	patient_ref,
 	care_level_ref,
 	ou_med_ref,
@@ -230,6 +230,6 @@ FROM
 WHERE
 	temp_axi IS NOT NULL
 ORDER BY
-	patnr,
+	patient_id,
 	result_date;
-ALTER TABLE  p_zero_phi.monitor_events_phi ADD COLUMN monitor_events_phi_id BIGSERIAL PRIMARY KEY;	
+ALTER TABLE  p_zero_phi.monitor_events_phi ADD COLUMN monitor_events_phi_id BIGSERIAL PRIMARY KEY;
