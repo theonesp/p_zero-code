@@ -15,7 +15,7 @@ SET search_path TO data_scope; -- or your schema name
 --  DDL for Table data_scope.znt_score
 --------------------------------------------------------
 
--- DROP TABLE data_scope.znt_score;
+DROP TABLE IF EXISTS data_scope.znt_score;
 
 CREATE TABLE data_scope.znt_score (
 	patient_id int4 NULL,
@@ -42,8 +42,8 @@ CREATE TABLE data_scope.znt_score (
 --------------------------------------------------------
 --  DDL for Table data_scope.demog
 --------------------------------------------------------
+DROP TABLE IF EXISTS data_scope.demog;
 
--- DROP TABLE data_scope.demog;
 
 CREATE TABLE data_scope.demog(
    patient_ref INTEGER 
@@ -57,7 +57,7 @@ CREATE TABLE data_scope.demog(
 --  DDL for Table data_scope.nation_dic
 --------------------------------------------------------
 
--- DROP TABLE data_scope.nation_dic;
+DROP TABLE IF EXISTS data_scope.nation_dic;
 CREATE TABLE data_scope.nation_dic(
    natio_ref VARCHAR
   ,label      VARCHAR
