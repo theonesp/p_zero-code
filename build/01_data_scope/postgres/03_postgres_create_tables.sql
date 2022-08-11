@@ -50,7 +50,7 @@ CREATE TABLE data_scope.demog(
   ,birth_date  VARCHAR
   ,sex         INTEGER 
   ,nation_ref  VARCHAR
-  ,load_date
+  ,load_date	TIMESTAMP
 );
 
 --------------------------------------------------------
