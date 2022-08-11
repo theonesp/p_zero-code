@@ -69,7 +69,7 @@ CREATE TABLE data_scope.nation_dic(
 --------------------------------------------------------
 
 DROP TABLE IF EXISTS data_scope.diag_events;
-CREATE TABLE data_scope.diag(
+CREATE TABLE data_scope.diag_events(
    patient_ref INTEGER
   ,episode_ref INTEGER
   ,diag_ref INTEGER
@@ -87,7 +87,6 @@ CREATE TABLE data_scope.diag_dic(
     ,cie VARCHAR
     ,catalog INTEGER
     ,cie_ref VARCHAR
-    ,'desc' VARCHAR
+    ,´desc´ VARCHAR
     ,diag_sap_ref INTEGER
 );
-
