@@ -16,7 +16,7 @@ SET search_path TO p_zero_stage; -- or your schema name
 --------------------------------------------------------
 
 -- Drop table
---DROP TABLE p_zero_stage.znt_score_tp;
+DROP TABLE IF EXISTS  p_zero_stage.znt_score_tp;
 
 -- This table extracts the value for each vital sign from the table data_scope.znt_score using regexp and performs some transformations.
 
