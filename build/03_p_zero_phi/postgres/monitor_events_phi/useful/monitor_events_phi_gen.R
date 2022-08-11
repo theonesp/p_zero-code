@@ -1,4 +1,4 @@
-# this code creates a long version of the r_monitor_parsed table looping over the unique elements of 
+# this code creates a long version of the znt_score_tp table looping over the unique elements of 
 
 # include unique items that will be present in chartevents in the following vector.
 #('ESTADO_CONCIENC_','FC_EKG','FC_OSC','FR_IP','FREC_RESP','O_DIS_','PA_S','PRESN_SIS','PULSIOX','PULSO','TEMP_AXI')
@@ -7,11 +7,14 @@ for (i in 1:length(vitals)) {
   print(
     cat(
       'SELECT
-patnr,
-usuari,
-vpid,
-data,
-hora,
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
 ',i,'AS reg_clin_ref,   
 ',vitals[i],'AS value
 FROM
