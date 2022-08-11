@@ -7,7 +7,7 @@
 --------------------------------------------------------
 
 -- DROP TABLE 
--- DROP TABLE p_zero_phi.monitor_events_phi;
+DROP TABLE IF EXISTS p_zero_phi.monitor_events_phi;
 
 CREATE TABLE p_zero_phi.monitor_events_phi
 AS 
