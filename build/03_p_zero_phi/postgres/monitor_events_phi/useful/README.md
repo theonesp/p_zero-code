@@ -1,6 +1,6 @@
 Useful scripts for generating chartevents tables.
 
-The following columns coming from r_monitor_parsed were mapped to their corresponding item according to this list.
+The following columns coming from monitor_events were mapped to their corresponding item according to this list.
 
 |Column original name| label in dic_items |  item_id|
 |---|---|---|
