@@ -18,12 +18,12 @@ SET search_path TO data_scope; -- or your schema name
 -- DROP TABLE data_scope.znt_score;
 
 CREATE TABLE data_scope.znt_score (
+	patient_id int4 NULL,
 	id int4 NULL,
 	mandt int4 NULL,
 	id_score varchar NULL,
-	"date" date NULL,
+	"data" date NULL,
 	hora varchar NULL,
-	patnr int4 NULL,
 	usuari varchar NULL,
 	vpid int4 NULL,
 	vwert int4 NULL,
@@ -37,6 +37,8 @@ CREATE TABLE data_scope.znt_score (
 	care_level_ref int4 NULL
 );
 
+
+
 --------------------------------------------------------
 --  DDL for Table data_scope.demog
 --------------------------------------------------------
@@ -48,6 +50,7 @@ CREATE TABLE data_scope.demog(
   ,birth_date  VARCHAR
   ,sex         INTEGER 
   ,nation_ref  VARCHAR
+  ,load_date
 );
 
 --------------------------------------------------------
