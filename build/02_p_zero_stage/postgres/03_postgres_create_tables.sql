@@ -28,7 +28,7 @@ AS SELECT
 	id AS phi_id,
 	care_level_ref,
 	ou_med_ref,
-	usuari AS znt_score_tp_user,
+	usuari AS monitor_events_user,
 	vpid, 
 	vwert AS score,
 	"substring"(valors::text, 'ESTADO_CONCIENC_(.)'::text) AS conc_state,
