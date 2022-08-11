@@ -12,223 +12,180 @@
 CREATE TABLE p_zero_phi.monitor_events_phi
 AS 
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	1 AS item_id,
-	conc_state AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 1 AS reg_clin_ref,   
+ conc_state AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	conc_state IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE conc_state IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	2 AS item_id,
-	hr_ecg AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 2 AS reg_clin_ref,   
+ hr_ecg AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	hr_ecg IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE hr_ecg IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	3 AS item_id,
-	hr_osc AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 3 AS reg_clin_ref,   
+ hr_osc AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	hr_osc IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE hr_osc IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	4 AS item_id,
-	rr_ip AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 4 AS reg_clin_ref,   
+ rr_ip AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	rr_ip IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE rr_ip IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	5 AS item_id,
-	rr AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 5 AS reg_clin_ref,   
+ rr AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	rr IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE rr IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	6 AS item_id,
-	o2_sup AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 6 AS reg_clin_ref,   
+ o2_sup AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	o2_sup IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE o2_sup IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	7 AS item_id,
-	pa_s AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 7 AS reg_clin_ref,   
+ pa_s AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	pa_s IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE pa_s IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	8 AS item_id,
-	presn AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 8 AS reg_clin_ref,   
+ presn AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	presn IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE presn IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	9 AS item_id,
-	pulsiox AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 9 AS reg_clin_ref,   
+ pulsiox AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	pulsiox IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE pulsiox IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	10 AS item_id,
-	pulse AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 10 AS reg_clin_ref,   
+ pulse AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	pulse IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE pulse IS NOT NULL
 UNION ALL
-
+      NULL
 SELECT
-	znt_score_tp_id,
-	score_id,
-	patient_id,
-	patient_ref,
-	care_level_ref,
-	ou_med_ref,
-	result_date,
-	znt_score_tp_user,
-	vpid,
-	score,
-	11 AS item_id,
-	temp_axi AS value,
-	group_flag
+patient_ref,
+phi_id,
+care_level_ref,
+ou_med_ref
+monitor_events_user,
+result_date,
+score,
+group_flag,
+ 11 AS reg_clin_ref,   
+ temp_axi AS value
 FROM
-	p_zero_stage.znt_score_tp
-WHERE
-	temp_axi IS NOT NULL
+stage_sild.r_monitor_parsed
+WHERE temp_axi IS NOT NULL
+
 ORDER BY
 	patient_id,
 	result_date;
