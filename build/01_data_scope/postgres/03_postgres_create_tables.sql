@@ -63,3 +63,31 @@ CREATE TABLE data_scope.nation_dic(
   ,label      VARCHAR
   ,TT        VARCHAR
 );
+
+--------------------------------------------------------
+--  DDL for Table data_scope.diag_events
+--------------------------------------------------------
+
+DROP TABLE IF EXISTS data_scope.diag_events;
+CREATE TABLE data_scope.diag(
+   patient_ref INTEGER
+  ,episode_ref INTEGER
+  ,diag_ref INTEGER
+  ,class    VARCHAR
+  ,load_date TIMESTAMP
+  ,diag_id  INTEGER
+);
+
+--------------------------------------------------------
+--  DDL for Table data_scope.diag_dic
+--------------------------------------------------------
+DROP TABLE IF EXISTS data_scope.diag_dic;
+CREATE TABLE data_scope.diag_dic(
+    diag_ref INTEGER
+    ,cie VARCHAR
+    ,catalog INTEGER
+    ,cie_ref VARCHAR
+    ,'desc' VARCHAR
+    ,diag_sap_ref INTEGER
+);
+
