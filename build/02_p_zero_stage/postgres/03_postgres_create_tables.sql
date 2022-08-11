@@ -12,33 +12,6 @@
 SET search_path TO p_zero_stage; -- or your schema name
 
 --------------------------------------------------------
---  DDL for Table r_monitor
---------------------------------------------------------
-
--- Drop table
-
--- DROP TABLE r_monitor;
-
-CREATE TABLE  r_monitor(
-   MANDT            INTEGER 
-  ,ID_SCORE         VARCHAR
-  ,DATA             DATE 
-  ,HORA             VARCHAR
-  ,PATNR            INTEGER 
-  ,id               INTEGER 
-  ,USUARI           VARCHAR
-  ,VPID             INTEGER 
-  ,VWERT            INTEGER 
-  ,POP_UP           VARCHAR
-  ,ENVIO_MEDXAT_MED VARCHAR
-  ,ENVIO_MEDXAT_ENF VARCHAR
-  ,ENVIO_EMAIL      VARCHAR
-  ,VALORS           VARCHAR
-  ,AILLAT           VARCHAR
-);
-
-
---------------------------------------------------------
 --  DDL for Table znt_score_tp
 --------------------------------------------------------
 
@@ -50,9 +23,9 @@ CREATE TABLE  r_monitor(
 CREATE TABLE p_zero_stage.znt_score_tp
 AS SELECT
 	id_score AS score_id,
-	CONCAT(date,' ',hora)::timestamp AS result_date,
-	patient_id,
-	id AS patient_ref,
+	CONCAT(data,' ',hora)::timestamp AS result_date,
+	patient_id AS patient_ref,
+	id AS phi_id,
 	care_level_ref,
 	ou_med_ref,
 	usuari AS znt_score_tp_user,
