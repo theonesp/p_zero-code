@@ -62,7 +62,7 @@ DROP TABLE IF EXISTS  p_zero_stage.exitus_events;
 CREATE TABLE p_zero_stage.exitus_events
 AS SELECT
 	patient_id as patient_ref,
-	death_date,
+	exitus_date,
 	load_date	
 	
 FROM
