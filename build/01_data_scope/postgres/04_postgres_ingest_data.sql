@@ -17,3 +17,6 @@ SET SEARCH_PATH TO data_scope;
 
 --copying diag_dic
 \copy data_scope.diag_dic   FROM '/home/xborrat/diag_dic.csv' DELIMITER ',' CSV HEADER;
+
+--copying death_events
+\copy data_scope.death_events   FROM '/home/xborrat/death_events.csv' DELIMITER ',' CSV HEADER;
