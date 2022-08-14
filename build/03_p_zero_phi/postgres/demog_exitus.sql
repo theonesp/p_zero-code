@@ -5,6 +5,6 @@ SELECT
   data_scope.demog.*, date(p_zero_stage.exitus_events.exitus_date) as exitus_date
 FROM
   data_scope.demog 
-  JOIN
+  LEFT JOIN
   p_zero_stage.exitus_events
   USING (patient_ref)
