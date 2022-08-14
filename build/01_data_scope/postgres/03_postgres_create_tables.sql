@@ -47,7 +47,7 @@ DROP TABLE IF EXISTS data_scope.demog;
 
 CREATE TABLE data_scope.demog(
    patient_ref INTEGER 
-  ,birth_date  VARCHAR
+  ,birth_date  TIMESTAMP
   ,sex         INTEGER 
   ,nation_ref  VARCHAR
   ,load_date	TIMESTAMP
