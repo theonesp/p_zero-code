@@ -50,3 +50,20 @@ FROM
 	data_scope.znt_score;	
 ALTER TABLE  p_zero_stage.znt_score_tp ADD COLUMN znt_score_tp_id BIGSERIAL PRIMARY KEY;	
 
+
+--------------------------------------------------------
+--  DDL for Table exitus_events
+-------------------------------------------------------
+
+DROP TABLE IF EXISTS  p_zero_stage.exitus_events;
+
+-- This table only changes the label of the source table in data_scope: patient_id to patient_ref
+
+CREATE TABLE p_zero_stage.exitus_events
+AS SELECT
+	patient_id as patient_ref,
+	death_date,
+	load_date	
+	
+FROM
+	data_scope.exitus_events;	
