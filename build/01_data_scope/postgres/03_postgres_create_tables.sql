@@ -89,4 +89,13 @@ CREATE TABLE data_scope.diag_dic(
     ,cie_ref VARCHAR
     ,´desc´ VARCHAR
     ,diag_sap_ref INTEGER
+	
+--------------------------------------------------------
+--  DDL for Table data_scope.death_events
+--------------------------------------------------------
+DROP TABLE IF EXISTS data_scope.death_events;
+CREATE TABLE data_scope.death_events(
+    patient_id INTEGER
+    ,exitus_date TIMESTAMP
+    ,load_date TIMESTAMP
 );
