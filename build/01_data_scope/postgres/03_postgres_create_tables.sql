@@ -91,10 +91,10 @@ CREATE TABLE data_scope.diag_dic(
     ,diag_sap_ref INTEGER
 	
 --------------------------------------------------------
---  DDL for Table data_scope.death_events
+--  DDL for Table data_scope.exitus_events
 --------------------------------------------------------
-DROP TABLE IF EXISTS data_scope.death_events;
-CREATE TABLE data_scope.death_events(
+DROP TABLE IF EXISTS data_scope.exitus_events;
+CREATE TABLE data_scope.exitus_events(
     patient_id INTEGER
     ,exitus_date TIMESTAMP
     ,load_date TIMESTAMP
