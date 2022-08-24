@@ -1,5 +1,5 @@
 -- This table anonimizes monitor_events_phi
--- it selects patient_deid associated with every patient_id
+-- it selects patient_deid associated with every patient_ref
 -- it adds week_multiples (always a multiple of seven) days to the real result date of the patient
 
 --------------------------------------------------------
