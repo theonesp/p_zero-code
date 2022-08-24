@@ -7,7 +7,7 @@ for (i in 1:length(vitals)) {
     cat(
       'SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,

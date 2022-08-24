@@ -13,7 +13,7 @@ CREATE TABLE p_zero_phi.monitor_events_phi
 AS 
 SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -28,7 +28,7 @@ WHERE conc_state IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -43,7 +43,7 @@ WHERE hr_ecg IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -58,7 +58,7 @@ WHERE hr_osc IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -73,7 +73,7 @@ WHERE rr_ip IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -88,7 +88,7 @@ WHERE rr IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -103,7 +103,7 @@ WHERE o2_sup IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -118,7 +118,7 @@ WHERE pa_s IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -133,7 +133,7 @@ WHERE presn IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -148,7 +148,7 @@ WHERE pulsiox IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,
@@ -163,7 +163,7 @@ WHERE pulse IS NOT NULL
 UNION ALL
       SELECT
 patient_ref,
-phi_id,
+patient_phi_id,
 care_level_ref,
 ou_med_ref,
 monitor_events_user,

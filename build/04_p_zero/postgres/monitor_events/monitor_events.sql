@@ -30,6 +30,6 @@ FROM
 JOIN
 	p_zero_phi.deid_keys 
 USING
-(patient_id)
+(patient_ref)
 ;
 ALTER TABLE  p_zero.monitor_events ADD COLUMN monitor_events_id BIGSERIAL PRIMARY KEY;

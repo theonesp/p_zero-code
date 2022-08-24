@@ -21,13 +21,13 @@ CREATE TABLE p_zero_phi.deid_keys
 WITH unique_patients AS
 	(
 SELECT
-		DISTINCT patient_id AS patient_id
+		DISTINCT patient_ref AS patient_ref
 FROM
 		p_zero_stage.znt_score_tp
 	)
 	SELECT 
-	patient_id,
-	patient_id + floor(random()*(100000000-1 + 1))+ 1 AS patient_deid,
+	patient_ref,
+	patient_ref + floor(random()*(100000000-1 + 1))+ 1 AS patient_deid,
 	(floor(random()*(1000000-1 + 1))+ 1)* 7 AS week_multiples
 FROM
 	unique_patients

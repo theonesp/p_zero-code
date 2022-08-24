@@ -25,7 +25,7 @@ AS SELECT
 	id_score AS score_id,
 	CONCAT(data,' ',hora)::timestamp AS result_date,
 	patient_id AS patient_ref,
-	id AS phi_id,
+	id AS patient_phi_id,
 	care_level_ref,
 	ou_med_ref,
 	usuari AS monitor_events_user,
@@ -48,22 +48,4 @@ AS SELECT
 	aillat AS group_flag
 FROM
 	data_scope.znt_score;	
-ALTER TABLE  p_zero_stage.znt_score_tp ADD COLUMN znt_score_tp_id BIGSERIAL PRIMARY KEY;	
-
-
---------------------------------------------------------
---  DDL for Table exitus_events
--------------------------------------------------------
-
-DROP TABLE IF EXISTS  p_zero_stage.exitus_events;
-
--- This table only changes the label of the source table in data_scope: patient_id to patient_ref
-
-CREATE TABLE p_zero_stage.exitus_events
-AS SELECT
-	patient_id as patient_ref,
-	exitus_date,
-	load_date	
-	
-FROM
-	data_scope.exitus_events;	
+ALTER TABLE  p_zero_stage.znt_score_tp ADD COLUMN znt_score_tp_id BIGSERIAL PRIMARY KEY;
