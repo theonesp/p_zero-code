@@ -1,0 +1,17 @@
+-- This table Fusions the  demog table with exitus data in order to provide prognostic insights.
+--------------------------------------------------------
+--  DDL for Table monitor_events
+--------------------------------------------------------
+-- DROP TABLE 
+-- DROP TABLE p_zero.demog_phi;
+
+CREATE TABLE p_zero_phi.demog_phi AS
+SELECT
+	data_scope.demo_events.*,
+	date(data_scope.exitus_events.exitus_date) AS exitus_date
+FROM
+	data_scope.demo_events
+LEFT JOIN 
+	data_scope.exitus_events 
+ON
+	data_scope.demo_events.patient_ref = data_scope.exitus_events.patient_id
