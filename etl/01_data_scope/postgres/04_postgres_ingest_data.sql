@@ -11,11 +11,11 @@ SET SEARCH_PATH TO data_scope;
 --copying znt_score
 \copy data_scope.znt_score (patient_id, id, mandt, id_score, "date", hora, usuari, vpid, vwert, pop_up, envio_medxat_med, envio_medxat_enf, envio_email, valors, aillat, ou_med_ref, care_level_ref) FROM '/stage_files/znt_score_2022-07-28.txt' DELIMITER ';' CSV HEADER;
 
---copying diag_events
-\copy data_scope.diag_events  FROM '/stage_files/diag_230822.csv' DELIMITER ',' CSV HEADER;
+--copying diag_scope
+\copy data_scope.diag_scope  FROM '/stage_files/diag_230822.csv' DELIMITER ',' CSV HEADER;
 
 --copying diag_dic
 \copy data_scope.diag_dic   FROM '/stage_files/diag_dic_230822.csv' DELIMITER ',' CSV HEADER;
 
 --copying death_events
-\copy data_scope.exitus_events   FROM '/stage_files/death_events_230822.csv' DELIMITER ',' CSV HEADER;
+\copy data_scope.exitus_scope   FROM '/stage_files/death_events_230822.csv' DELIMITER ',' CSV HEADER;

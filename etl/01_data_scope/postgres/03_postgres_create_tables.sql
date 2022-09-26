@@ -65,11 +65,11 @@ CREATE TABLE data_scope.nation_dic(
 );
 
 --------------------------------------------------------
---  DDL for Table data_scope.diag_events
+--  DDL for Table data_scope.diag_scope
 --------------------------------------------------------
 
-DROP TABLE IF EXISTS data_scope.diag_events;
-CREATE TABLE data_scope.diag_events(
+DROP TABLE IF EXISTS data_scope.diag_scope;
+CREATE TABLE data_scope.diag_scope(
    patient_ref INTEGER
   ,episode_ref INTEGER
   ,diag_ref INTEGER
@@ -91,10 +91,10 @@ CREATE TABLE data_scope.diag_dic(
     ,diag_sap_ref INTEGER
 	
 --------------------------------------------------------
---  DDL for Table data_scope.exitus_events
+--  DDL for Table data_scope.exitus_scope
 --------------------------------------------------------
-DROP TABLE IF EXISTS data_scope.exitus_events;
-CREATE TABLE data_scope.exitus_events(
+DROP TABLE IF EXISTS data_scope.exitus_scope;
+CREATE TABLE data_scope.exitus_scope(
     patient_id INTEGER
     ,exitus_date TIMESTAMP
     ,load_date TIMESTAMP
