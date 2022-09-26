@@ -17,5 +17,8 @@ SET SEARCH_PATH TO data_scope;
 --copying diag_dic
 \copy data_scope.diag_dic   FROM '/stage_files/diag_dic_230822.csv' DELIMITER ',' CSV HEADER;
 
---copying death_events
+--copying exitus_scope
 \copy data_scope.exitus_scope   FROM '/stage_files/death_events_230822.csv' DELIMITER ',' CSV HEADER;
+
+--copying lab_scope
+\copy data_scope.lab_scope   FROM '/stage_files/lab_events_2022-09-11.csv' DELIMITER ',' CSV HEADER;
