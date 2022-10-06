@@ -298,7 +298,7 @@ GROUP BY patient_ref,hosp_adm_id,stay_frame_id
 -- creació znt_scope: elimina columnes cd znt_master i només deixar dades i claus de conexio amb stay_scope
 
 DROP TABLE IF EXISTS playground.znt_scope;
-CREATE TABLE playground.stay_scope as
+CREATE TABLE playground.znt_scope as
 (
 SELECT 
     patient_ref,
@@ -323,5 +323,18 @@ SELECT
 FROM playground.znt_master
 );
 
+DROP TABLE IF EXISTS playground.stay_scope_exitus;
+CREATE TABLE playground.stay_scope_exitus as
+(
+SELECT 
+FROM playground.stay_scope left join playground.exitus_scope
+);
 
+-- Adding exitus data to stay_scope obtaining stay_scope_exitus
 
+DROP TABLE IF EXISTS playground.stay_scope_exitus;
+CREATE TABLE playground.stay_scope_exitus as
+(
+SELECT ss.*,exitus_date
+FROM playground.stay_scope ss left join playground.exitus_scope  es on ss.patient_ref=es.patient_id
+)
