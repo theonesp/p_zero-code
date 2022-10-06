@@ -323,12 +323,7 @@ SELECT
 FROM playground.znt_master
 );
 
-DROP TABLE IF EXISTS playground.stay_scope_exitus;
-CREATE TABLE playground.stay_scope_exitus as
-(
-SELECT 
-FROM playground.stay_scope left join playground.exitus_scope
-);
+
 
 -- Adding exitus data to stay_scope obtaining stay_scope_exitus
 
