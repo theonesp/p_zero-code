@@ -1,4 +1,17 @@
--- requires previous tables: znt_score, stay.
+-- requires previous tables: znt_score, stay,
+-- creació per ingesta: znt_score_phi, moviments.
+-- creació per fusio: 
+        --znt_ref_phi(znt_score,znt_score_phi)
+        --znt_phi_loc(moviments,znt_phi_filled)
+        --znt_phi_loc_stay(znt_phi,stay) afegim dades dia de ingres hospitalari
+-- creació per colapse:
+            --colapsed_znt (znt_phi_loc_stay) granularitat a nivell de dia.
+            --stay_frame(collapsed_znt) granularitat a nivell de stay frame
+            --hosp_adm(collapsed_znt) granularitat a nivell de hospital admission
+-- creació per fusio:
+            --znt_master(hosp_adm, stay_id wiht znt_loc_stay )
+
+
 
 
 -- creation of znt_score_phi  which is znt_score with nmr(patnr).
@@ -84,6 +97,8 @@ SCRIPT THAT RESOLVES DATA DUPLICATION AND MERGES ZNT_PHI_REF_FILLED AMB MOVEMENT
 problem: multiple files for each measurement where the values column has incremental characters.
 strategy: I keep the row that has a higher length in the values column. I use the technique window functions and I keep the first case after sorting in descending order. 
 In the same script I merge left join znt score and movements.
+
+
 */
 
 
@@ -128,7 +143,8 @@ select patient_ref,
 DROP TABLE IF EXISTS playgroud.znt_phi_loc_stay;
 
 CREATE TABLE  playground.znt_phi_loc_stay AS
-(select z.*,s.start_date as ingres,s.end_date as alta from playground.znt_phi_loc z left join playground.stay s 
+(select z.*,s.start_date as ingres,s.end_date as alta 
+from playground.znt_phi_loc z left join playground.stay s 
 on z.patient_ref = s.patient_ref and z.data=s.data)
 
 
@@ -189,6 +205,12 @@ select * from output2 where  intensive_care_level::VARCHAR ~ '(1|3)' --1) normal
 
 
 
+
+
+
+
+
+
 -- Stay_frame creation:
 -- Collapse to obtain  stay_frame gralunarity.
 -- Stay_frame concept: periods of normal ward stays that ends or not with the need of critical care admission 
@@ -196,16 +218,18 @@ select * from output2 where  intensive_care_level::VARCHAR ~ '(1|3)' --1) normal
 
 drop table if exists playground.stay_frame;
 create table playground.stay_frame as
-
-(with output1 as(
-select patient_ref, ingres, loc_adm_date ,ou_loc_ref,min(intensive_care_level) from playground.collapsed_znt 
-group by patient_ref, ingres,loc_adm_date, ou_loc_ref order by patient_ref, loc_adm_date,ingres
-),
-output2 as (
-select *,  row_number() over (partition by patient_ref,ingres,loc_adm_date order by patient_ref, loc_adm_date,ingres )
-from output1) as stay_frame_seq
+(
+    with output1 as(
+    select patient_ref, ingres, loc_adm_date ,ou_loc_ref,min(intensive_care_level)
+    from playground.collapsed_znt 
+    group by patient_ref, ingres,loc_adm_date, ou_loc_ref order by patient_ref, loc_adm_date,ingres
+    ),
+    output2 as (
+    select *,  row_number() over (partition by patient_ref,ingres,loc_adm_date order by patient_ref, loc_adm_date,ingres )
+    from output1) as stay_frame_seq
 select * from output2 
-order by patient_ref, ingres, loc_adm_date)
+order by patient_ref, ingres, loc_adm_date
+)
 
 
 
@@ -213,15 +237,18 @@ order by patient_ref, ingres, loc_adm_date)
 -- Collapse to obtain hosp_adm gralunarity.
 drop table if exists playground.hosp_adm;
 Create table playground.hosp_adm as
-(with output1 as(
-select patient_ref, ingres as hosp_adm from playground.collapsed_znt 
-group by patient_ref, ingres order by patient_ref, ingres
+(
+    with output1 as(
+    select patient_ref, ingres as hosp_adm from playground.collapsed_znt 
+    group by patient_ref, ingres order by patient_ref, ingres
 ),
-output2 as (
-select *,  row_number() over (partition by patient_ref order by patient_ref, hosp_adm ) as hosp_adm_seq
-from output1)
-select * from output2 
-order by patient_ref, hosp_adm )
+output2 as 
+(
+    select *,  row_number() over (partition by patient_ref order by patient_ref, hosp_adm ) as hosp_adm_seq
+    from output1)
+    select * from output2 
+    order by patient_ref, hosp_adm 
+)
 
 
 
@@ -235,6 +262,7 @@ ALTER TABLE playground.hosp_adm ADD COLUMN hosp_adm_id SERIAL PRIMARY KEY;
 -- CREATION znt_master
 -- merge   hosp_adm, stay_id wiht  znt_loc_stay, not repeated columns selection, name change, filter the vitals rows that has 
 -- no stay_frame_id
+-- V2: added icu and intermediate long of stay and normal ward long of stay
 
 DROP TABLE IF EXISTS playground.znt_master;
 CREATE TABLE playground.znt_master as
@@ -247,7 +275,9 @@ SELECT
     hosp_adm_id,
     stay_frame_id,
     stay_frame_seq,
-    min as evolution,
+    care_level as evolution,
+    los,
+    los_uci_int,
   --
     id,
     mandt,
@@ -266,9 +296,9 @@ SELECT
     aillat
   
 
-FROM playground.znt_phi_loc_stay z left join playground.hosp_adm adm 
-on z.patient_ref=adm.patient_ref and z.ingres=adm.hosp_adm left join playground.stay_frame sf  
-on z.patient_ref=sf.patient_ref and z.ingres=sf.ingres and z.start_date=sf.loc_adm_date
+FROM playground.znt_phi_loc_stay z 
+left join playground.hosp_adm adm  on z.patient_ref=adm.patient_ref and z.ingres=adm.hosp_adm 
+left join playground.stay_frame sf  on z.patient_ref=sf.patient_ref and z.ingres=sf.ingres and z.start_date=sf.loc_adm_date
 where stay_frame_id IS NOT NULL -- filter for all rows that have stay_frame
 );
 
@@ -276,8 +306,8 @@ where stay_frame_id IS NOT NULL -- filter for all rows that have stay_frame
 
 
 
--- creació stay_scope : colapsa znt_loc_master a nivell de stay frames i borrar columnes de dades.
-
+-- creació stay_scope : colapsa znt_master a nivell de stay frames i borrar columnes de dades.
+-- V2: added icu and intermediate long of stay and normal ward long of stay
 DROP TABLE IF EXISTS playground.stay_scope;
 CREATE TABLE playground.stay_scope as
 (
@@ -289,7 +319,9 @@ SELECT
     max(hosp_adm_seq) as hosp_adm_seq ,
     stay_frame_id,
     max(stay_frame_seq) as stay_frame_seq,
-    max(evolution) as evolution
+    max(evolution) as evolution,
+    max(los) as los,
+    max(los_uci_int) as los_uci_int
 FROM playground.znt_master
 GROUP BY patient_ref,hosp_adm_id,stay_frame_id
 );
@@ -333,3 +365,123 @@ CREATE TABLE playground.stay_scope_exitus as
 SELECT ss.*,exitus_date
 FROM playground.stay_scope ss left join playground.exitus_scope  es on ss.patient_ref=es.patient_id
 )
+
+
+
+
+
+
+
+
+-- Collapse rows to days to be able to select the days prior to admission to uci, intermediate , shock room.
+-- Use the day of entry to separate the different episodes. 
+-- V2.0 is the version that includes 1,2,3 values of 
+-- intensive_care_level
+
+DROP TABLE IF EXISTS collapsed_znt;
+
+CREATE TABLE collapsed_znt AS
+(
+with output1 as -- aggregate by pacient, ward, day
+(SELECT 
+    patient_ref,
+    max(patnr)as patnr,
+    data, 
+    count(*),
+    max(start_date) as loc_adm_date,
+    ou_loc_ref,
+    max(ingres) as ingres
+FROM playground.znt_phi_loc_stay group by patient_ref,ou_loc_ref,data 
+having  count(*) >1 and max(ou_loc_ref) is NOT NULL
+order by patient_ref,ou_loc_ref,data
+),
+output2 as -- windows functions where each window  is related to  an hospital_adm (pacient,ingres)
+(select *,
+    case
+ 
+        when ou_loc_ref like 'G%' and 
+            (lead(ou_loc_ref,5) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
+            THEN 1
+        when ou_loc_ref like 'G%' and 
+            (lead(ou_loc_ref,4) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
+            THEN 1
+        when ou_loc_ref like 'G%' and 
+            (lead(ou_loc_ref,3) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
+            THEN 1
+        when ou_loc_ref like 'G%' and 
+            (lead(ou_loc_ref,2) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
+            THEN 1
+        when ou_loc_ref like 'G%' and 
+            (lead(ou_loc_ref,1) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
+            THEN 1
+        when ou_loc_ref similar to '(E|I|BPARO|PUR0)%'
+              then 2 -- 2 means that the patient is in the ICU/Intemediate care / BPARO 
+        when ou_loc_ref like 'G%' -- 3)resta de pacients que estan en una sala G i no compleixen cases anterior.
+            THEN 3
+        else 0 --inclou altres sales que no son (G,E,I,BPARO,PUR0 etc)
+        END as intensive_care_level
+from output1 
+)
+select * from output2 where  intensive_care_level::VARCHAR ~ '(1|2|3)' --3) normal ward no need intensive care 2) intensive care
+--1) normal ward but need intensive care
+)
+
+
+
+
+-- Stay_frame creation:
+-- Collapse to obtain  stay_frame gralunarity.
+-- Stay_frame concept: periods of normal ward stays (movements) that ends or not with the need of critical care admission
+-- (1: stay at ward that need for intensive admision , 3: stay at regular ward no need for intensive admision ,
+-- 2: intensive care admission)
+-- V2: 1,2,3 values of intensive_care_level ( and not only 1,3)
+
+drop table if exists playground.stay_frame;
+create table playground.stay_frame as
+(
+with output4 as(
+     -- colapsa per arribar a granularitat de stay_frame,  suma el count de cada dia per fer los(long of stay)
+    select patient_ref, ingres, loc_adm_date ,ou_loc_ref,min(intensive_care_level) as care_level, count(*) as los 
+    from  collapsed_znt 
+    group by patient_ref, ingres,loc_adm_date, ou_loc_ref order by patient_ref, loc_adm_date,ingres
+    ),
+output5 as ( -- crea una columna amb el nombre de dies que ha estat a la uci 
+    select *,
+    case
+        when care_level = 1 and lead(care_level,3) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date) = 2 
+        then lead(los,3) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date)
+        when care_level = 1 and lead(care_level,2) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date) = 2 
+        then lead(los,2) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date)
+        when care_level = 1 and lead(care_level) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date) = 2 
+        then lead(los) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date)
+   
+    end as los_uci_int
+    -- ho deixem per despres de treure el 2 (ingres uci) row_number() over (partition by patient_ref,ingres order by patient_ref, loc_adm_date,ingres )as stay_frame_seq
+    from output4)
+select *, row_number() over (partition by patient_ref,ingres order by patient_ref, loc_adm_date,ingres )as stay_frame_seq  
+from output5 
+WHERE care_level::VARCHAR similar to '(1|3)' -- excloem UCI, intermitjos.
+order by patient_ref, ingres, loc_adm_date 
+)
+
+-- hosp_adm creation:
+-- Collapse to obtain hosp_adm gralunarity.
+-- V2: playgraund.collapse_znt has 1,2,3 values of intensive_care_level ( and not only 1,3 like in V1)
+
+-- En realitat no fa falta perque colapsa a nivell d'ingrés.
+drop table if exists playground.hosp_adm;
+Create table playground.hosp_adm as
+(
+    with output1 as(
+    select patient_ref, ingres as hosp_adm 
+    from playground.collapsed_znt 
+    group by patient_ref, ingres order by patient_ref, ingres
+),
+output2 as 
+(
+    select *,  row_number() over (partition by patient_ref order by patient_ref, hosp_adm ) as hosp_adm_seq
+    from output1)
+    select * from output2 
+    order by patient_ref, hosp_adm 
+)
+
