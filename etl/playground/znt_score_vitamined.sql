@@ -1,418 +1,390 @@
--- requires previous tables: znt_score, stay,
--- creació per ingesta: znt_score_phi, moviments.
--- creació per fusio: 
-        --znt_ref_phi(znt_score,znt_score_phi)
-        --znt_phi_loc(moviments,znt_phi_filled)
-        --znt_phi_loc_stay(znt_phi,stay) afegim dades dia de ingres hospitalari
--- creació per collapsed per aconseguir granularitat a nvell dia i afegir ou_loc_ref a cada dia i si després uci.
-            --colapsed_znt (znt_phi_loc_stay) granularitat a nivell de dia.
-            --stay_frame(collapsed_znt) colapsa granularitat a nivell de stay frame al collpsar de dies a stay_frames calcula  el los i los_uci
-            --hosp_adm(collapsed_znt)colapsa granularitat a nivell de hospital admission
-            --afegir  identificadors unics a stay_frame i hosp_adm
--- creació per fusio:
-            --znt_master(hosp_adm, stay_frame wiht znt_loc_stay(tots els registres) per colocar les index als valors
-            --znt_scope només es queda amb index i valors de znt_master
-            --stay_scope colapsa znt_master a nivell stay frame i es queda amb columnes concretes
 
 
 
 
 
--- creation of znt_score_phi  which is znt_score with nmr(patnr).
 
-DROP TABLE IF EXISTS playground.znt_score_phi;
+-----------------------EXTRACCIÓ TAULES BASE DEL DATASCOPE-----------------------
+---- corre en servidor datascope mysql
 
-CREATE TABLE playground.znt_score_phi (
+-- MOV_EVENTS: Extracció de mov_events de datalake per carregar al p_zero datascope
+with znt_colap as (
+(select distinct patient_ref from datascope.znt_score)
+)
+SELECT * FROM datascope.mov_events
+where patient_ref in (select patient_ref from znt_colap)
+and date(start_date) > '2020-06-01'
+
+-- CARE_LEVEL_EVENTS: Extracció de care_level_events de datalake per carregar al p_zero datascope
+with znt_colap as (
+(select distinct patient_ref from datascope.znt_score)
+)
+SELECT * FROM datascope.care_level_events
+where patient_ref in (select patient_ref from znt_colap)
+and date(start_date) > '2020-06-01'
+
+
+
+-- EPISODE_EVENTS: extracció taula episode_events
+with znt_colap as (
+(select distinct patient_ref from datascope.znt_score)
+)
+SELECT * FROM datascope.episodi_events
+where patient_ref in (select patient_ref from znt_colap)
+and date(start_date) > '2020-06-01'
+
+
+-- extracció diagnostics de datascope (mysql)
+
+with znt_colap as (
+(select distinct patient_ref from datascope.znt_score)
+)
+SELECT * FROM datascope.diag_events
+where patient_ref in (select patient_ref from znt_colap)
+-- not time limit because we want previous conditions
+-- filter by patient not by episode.
+-- interpretació de diagnostics:  episodis consultes externes tenen data de dx el dia de la visita, episodis d'ingrés tenen data de dx el dia de l'ingrés.
+
+
+-- extracció de diccionari de diagnostics de datascope (mysql)
+-- traducció a cie-9 i cie-10
+SELECT * FROM datascope.diag_sap_dic;
+
+
+
+
+-------------------------------------- BASE TABLES CREATE + INGESTIONS--------------------------------------
+
+
+--- ZNT_SCORE
+
+DROP TABLE IF EXISTS data_scope.znt_score;
+
+CREATE TABLE data_scope.znt_score (
 	
-	id varchar NULL,
-	mandt int4 NULL,
-	id_score varchar NULL,
-	"data" date NULL,
-	hora varchar NULL,
-    patnr int4 NULL,
-	usuari varchar NULL,
-	vpid int4 NULL,
-	vwert int4 NULL,
-	pop_up varchar NULL,
-	envio_medxat_med varchar NULL,
-	envio_medxat_enf varchar NULL,
-	envio_email varchar NULL,
-	valors varchar NULL,
-	aillat varchar NULL
+    id varchar DEFAULT NULL,
+    MANDT int DEFAULT NULL,
+    ID_SCORE varchar(45) DEFAULT NULL,
+    DATA date NOT NULL,
+    HORA  time NOT NULL,
+    PATNR int NOT NULL,
+   USUARI  varchar(45) NOT NULL,
+   VPID  int NOT NULL,
+   VWERT  int NOT NULL,
+   POP_UP  varchar(2) DEFAULT NULL,
+   ENVIO_MEDXAT_MED  varchar(2) DEFAULT NULL,
+   ENVIO_MEDXAT_ENF  varchar(2) DEFAULT NULL,
+   ENVIO_EMAIL  varchar(2) DEFAULT NULL,
+   VALORS  varchar(256) NOT NULL,
+   AILLAT  varchar(4) DEFAULT NULL,
+   patient_ref  int DEFAULT NULL
+
 
 );
 
---COPY TO INGEST
-
-copy playground.znt_score_phi  FROM '/home/admin/xavi_cabin/znt_score_phi.csv' DELIMITER ',' CSV HEADER;
+copy data_scope.znt_score  FROM '/home/admin/xavi_cabin/znt_score.csv' DELIMITER ',' CSV HEADER;
 
 
---CREATE NEW  znt TABLE WITH deidentified unique patient code (paient_ref) and  PHI
---Join the new znt_score with patnr(phi) with previous  znt_score with patient_id(no phi)
 
-drop table if exists playground.znt_ref_phi;
+-- MOV_EVENTS
 
-CREATE TABLE playground.znt_ref_phi as
-(select patient_id, p.* from playground.znt_score z right join  playground.znt_score_phi p 
-on
-p.data=z.data and p.hora=z.hora and p.valors=z.valors
+DROP TABLE IF EXISTS data_scope.mov_events;
 
+CREATE TABLE data_scope.mov_events (
+    
+    patient_ref  bigint NULL,
+    episode_ref bigint  NULL,
+    care_level_ref INT NULL,
+    ou_med_ref varchar NULL,
+    ou_loc_ref varchar NULL,
+    start_date  timestamp NULL,
+    end_date  timestamp NULL,
+    load_date  timestamp NULL,
+    mov_id bigint NULL
 );
 
 
---CREATE TABLE playground.znt_ref_phi_filled
--- to solve the problem that there’s nulls in patient_id 
+copy data_scope.mov_events  FROM '/home/admin/xavi_cabin/mov_events.csv' DELIMITER ',' CSV HEADER;
 
--- OBJECTIVES: create a new table with the gaps in patient_id columns filled. 
--- creates a table key to transform patnr to patient_id (creation and selecting 
--- distinct rows with groupby)
--- using the key with the original table znt_score.
 
-Drop table if exists playground.znt_ref_phi_filled;
-CREATE TABLE playground.znt_ref_phi_filled AS
+
+
+-- care_level_events
+
+DROP TABLE IF EXISTS data_scope.care_level_events;
+
+CREATE TABLE data_scope.care_level_events (
+    
+    care_level_ref INT NULL,
+    patient_ref  bigint NULL,
+    care_level_type_ref varchar NULL,
+    start_date  timestamp NULL,
+    end_date  timestamp NULL,
+    id_hosp bigint NULL,
+    id_stay varchar NULL,
+    id_process varchar NULL,
+    load_date  timestamp NULL
+);
+
+copy data_scope.care_level_events  FROM '/home/admin/xavi_cabin/care_level_events.csv' DELIMITER ',' CSV HEADER;
+
+
+
+-- LAB_EVENTS
+
+
+DROP TABLE IF EXISTS data_scope.lab_events;
+CREATE TABLE data_scope.lab_events 
 (
-WITH output1 as(
-SELECT patient_id,patnr FROM playground.znt_ref_phi where patient_id is not null order by patnr
-), key as(
-select patient_id,patnr from output1 group by patient_id,patnr)
-, output2 as(
-select o.patient_id as patient_ref, z.* from playground.znt_ref_phi z join key o  on z.patnr=o.patnr
-order by o.patient_id,data, hora)
-select patient_ref,id,mandt,id_score, data, hora, patnr, usuari, vpid, vwert,envio_medxat_med,envio_medxat_enf,envio_email,valors,aillat from output2)
-
-
-
-DROP TABLE IF EXISTS playground.moviments;
-
-CREATE TABLE playground.moviments (
-	patient_id int4 NULL,
-	start_date date NULL,
-	ou_loc_ref varchar NULL,
-    register_date date NULL
-
+    lab_id INT NOT NULL,
+    patient_ref bigINT NOT NULL,
+    episode_ref bigINT NOT NULL,
+    extrac_date TIMESTAMP NOT NULL,
+    res_date timestamp NOT NULL,
+    ou_med_ref varchar(20),
+    ou_loc_ref varchar(20),
+    care_level_ref bigint NULL,
+    lab_ref  BIGINT NULL,
+    result_num real NULL,
+    result_txt varchar(255),
+    load_date timestamp NULL
 );
 
--- INGEST MOVIMENTS DATA: 
-
-copy playground.moviments FROM  '/home/admin/xavi_cabin/mov_2022-09-24.txt' DELIMITER ';' CSV HEADER;
-
-/*
-SCRIPT THAT RESOLVES DATA DUPLICATION AND MERGES ZNT_PHI_REF_FILLED AMB MOVEMENTS
-problem: multiple files for each measurement where the values column has incremental characters.
-strategy: I keep the row that has a higher length in the values column. I use the technique window functions and I keep the first case after sorting in descending order. 
-In the same script I merge left join znt score and movements.
-
-
-*/
-
-
-DROP TABLE IF EXISTS playground.znt_phi_loc;
-
-CREATE TABLE playground.znt_phi_loc AS(
-with znt_rank0 as --len of valors column
-    (SELECT *,char_length(valors) as len FROM playground.znt_ref_phi_filled),
-znt_rank1 as -- rank the window function using  ordered len 
-    (select row_number () over (partition by patnr ,data,hora order by len desc) as rang,*  from znt_rank0),
-znt_rank2 AS -- select the first row (longest valors len)
-    (select * from znt_rank1 where rang=1),
-znt_rank3 as -- order by 
-    (select * from znt_rank2  order by patnr , data, hora, rang),
-znt_rank4 as -- fusion znt to moviments to get the location
-    (select * from znt_rank3 z 
-    left join playground.moviments i
-    on z.patient_ref = i.patient_id and z.data=i.register_date order by patient_id,z.data,z.hora)
--- select the relevant columns
-select patient_ref,
-        id,
-        mandt,
-        id_score,
-        data, 
-        hora, 
-        patnr,
-        ou_loc_ref,
-        start_date,
-        usuari, 
-        vpid, 
-        vwert,
-        envio_medxat_med,
-        envio_medxat_enf,
-        envio_email,
-        valors,
-        aillat from znt_rank4
-);
-
-
--- Merge stay and znt_phi_loc to obtain the date of hospital admission and thus episode(hosp_adm).
-
-DROP TABLE IF EXISTS playgroud.znt_phi_loc_stay;
-
-CREATE TABLE  playground.znt_phi_loc_stay AS
-(select z.*,s.start_date as ingres,s.end_date as alta 
-from playground.znt_phi_loc z left join playground.stay s 
-on z.patient_ref = s.patient_ref and z.data=s.data)
+copy  data_scope.lab_events  FROM '/home/admin/xavi_cabin/lab_events.csv' DELIMITER ',' CSV HEADER;
 
 
 
+-- LAB_DIC
 
-
-
--- Collapse rows to days to be able to select the days prior to admission to uci, intermediate , shock room.
--- Use the day of entry to separate the different episodes. 
--- V2.0 is the version that includes 1,2,3 values of 
--- intensive_care_level
-
-DROP TABLE IF EXISTS collapsed_znt;
-
-CREATE TABLE collapsed_znt AS
+DROP TABLE IF EXISTS data_scope.lab_dic;
+CREATE TABLE data_scope.lab_dic 
 (
-with output1 as -- aggregate by pacient, ward, day
-(SELECT 
-    patient_ref,
-    max(patnr)as patnr,
-    data, 
-    count(*),
-    max(start_date) as loc_adm_date,
-    ou_loc_ref,
-    max(ingres) as ingres
-FROM playground.znt_phi_loc_stay group by patient_ref,ou_loc_ref,data 
-having  max(ou_loc_ref) is NOT NULL
-order by patient_ref,ou_loc_ref,data
-),
-output2 as -- windows functions where each window  is related to  an hospital_adm (pacient,ingres)
-(select *,
-    case
- 
-        when ou_loc_ref like 'G%' and 
-            (lead(ou_loc_ref,5) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
-            THEN 1
-        when ou_loc_ref like 'G%' and 
-            (lead(ou_loc_ref,4) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
-            THEN 1
-        when ou_loc_ref like 'G%' and 
-            (lead(ou_loc_ref,3) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
-            THEN 1
-        when ou_loc_ref like 'G%' and 
-            (lead(ou_loc_ref,2) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
-            THEN 1
-        when ou_loc_ref like 'G%' and 
-            (lead(ou_loc_ref,1) over (partition by patient_ref,ingres order by patient_ref,data) similar to '(E|I|BPARO|PUR0)%')
-            THEN 1
-        when ou_loc_ref similar to '(E|I|BPARO|PUR0)%'
-              then 2 -- 2 means that the patient is in the ICU/Intemediate care / BPARO 
-        when ou_loc_ref like 'G%' -- 3)resta de pacients que estan en una sala G i no compleixen cases anterior.
-            THEN 3
-        else 0 --inclou altres sales que no son (G,E,I,BPARO,PUR0 etc)
-        END as intensive_care_level
-from output1 
-)
-select * from output2 where  intensive_care_level::VARCHAR ~ '(1|2|3)' --3) normal ward no need intensive care 2) intensive care
---1) normal ward but need intensive care
-)
-
-
-
-
--- Stay_frame creation:
--- Collapse  collapsed_znt to obtain  stay_frame gralunarity.
--- Stay_frame concept: periods of normal ward stays (movements) that ends or not with the need of critical care admission
--- (1: stay at ward that need for intensive admision , 3: stay at regular ward no need for intensive admision ,
--- 2: intensive care admission)
--- V2: 1,2,3 values of intensive_care_level ( and not only 1,3)
-
-drop table if exists playground.stay_frame;
-create table playground.stay_frame as
-(
-with output4 as(
-     -- colapsa per arribar a granularitat de stay_frame,  suma el count de cada dia per fer los(long of stay)
-    select patient_ref, ingres, loc_adm_date ,ou_loc_ref,min(intensive_care_level) as care_level, count(*) as los 
-    from  collapsed_znt 
-    group by patient_ref, ingres,loc_adm_date, ou_loc_ref order by patient_ref, loc_adm_date,ingres
-    ),
-output5 as ( -- crea una columna amb el nombre de dies que ha estat a la uci 
-    select *,
-    case
-        when care_level = 1 and lead(care_level,3) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date) = 2 
-        then lead(los,3) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date)
-        when care_level = 1 and lead(care_level,2) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date) = 2 
-        then lead(los,2) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date)
-        when care_level = 1 and lead(care_level) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date) = 2 
-        then lead(los) over (partition by  patient_ref,ingres order by patient_ref,ingres,loc_adm_date)
    
-    end as los_uci_int
-    -- ho deixem per despres de treure el 2 (ingres uci) row_number() over (partition by patient_ref,ingres order by patient_ref, loc_adm_date,ingres )as stay_frame_seq
-    from output4)
-select *, row_number() over (partition by patient_ref,ingres order by patient_ref, loc_adm_date,ingres )as stay_frame_seq  
-from output5 
-WHERE care_level::VARCHAR similar to '(1|3)' -- excloem UCI, intermitjos.
-order by patient_ref, ingres, loc_adm_date 
-)
+    lab_ref  BIGINT NULL,
+    descr varchar(255) NULL,
+    units varchar(255) NULL
+    
+);
+
+copy  data_scope.lab_dic FROM '/home/admin/xavi_cabin/lab_dic.csv' DELIMITER ',' CSV HEADER;
 
 
--- hosp_adm creation:
--- Collapse to obtain hosp_adm gralunarity.
--- V2: playgraund.collapse_znt has 1,2,3 values of intensive_care_level ( and not only 1,3 like in V1)
--- En realitat no fa falta perque colapsa a nivell d'ingrés.
-drop table if exists playground.hosp_adm;
-Create table playground.hosp_adm as
+--EPISODE_EVENTS
+
+DROP TABLE IF EXISTS data_scope.episode_events;
+
+CREATE TABLE data_scope.episode_events 
 (
-    with output1 as(
-    select patient_ref, ingres as hosp_adm 
-    from playground.collapsed_znt 
-    group by patient_ref, ingres order by patient_ref, ingres
+    patient_ref BIGINT NOT NULL,
+    episode_ref BIGINT NOT NULL,
+    start_date TIMESTAMP  NULL,
+    end_date TIMESTAMP NULL,
+    mot_start   VARCHAR(255) NULL,
+    mot_end     VARCHAR(255) NULL,
+    load_date TIMESTAMP NULL
+);
+
+-- ingestio de dades de episodi_events
+copy  data_scope.episode_events  FROM '/home/admin/xavi_cabin/episode_events.csv' DELIMITER ',' CSV HEADER;
+
+
+
+-- DIAG_EVENTS
+DROP TABLE IF EXISTS data_scope.diag_events;
+
+CREATE TABLE data_scope.diag_events(
+    patient_ref INT,
+    episode_ref bigint, 
+    diag_ref bigint,
+    class  VARCHAR(20), -- motiu d'ingrés, informe secundari
+    reg_date TIMESTAMP null,
+    load_date TIMESTAMP null,
+    diag_id bigint not null
+);  
+
+copy data_scope.diag_events  FROM '/home/admin/xavi_cabin/diag_events.csv' DELIMITER ',' CSV HEADER;
+
+-- modificar taula seleccionant només els pacients del projecte zero només agafo els casos 
+-- que els pacients estan a la taula demog.
+
+
+-- DIAG_DIC (equival a taula diag_sap_dic de datascope)
+DROP TABLE IF EXISTS data_scope.diag_dic;
+
+CREATE TABLE data_scope.diag_dic( -- taula encaixa amb opcio 1  
+    diag_ref bigint,
+    cie  VARCHAR(20), -- motiu d'ingrés, informe secundari
+    catalog  int null,
+    cie_ref varchar(20) null,
+    descr varchar(256),
+    diag_sap_ref bigint null
+);  
+
+copy data_scope.diag_dic  FROM '/home/admin/xavi_cabin/diag_dic.csv' DELIMITER ',' CSV HEADER;
+
+
+
+
+
+
+---------------STAGE TABLES CREATION-------------------------------------------------------
+------------STAGE TABLES CREATION FROM DATA_SCOPE POSGRL TABLES--------------
+
+
+-- per fer correr en servidor pzero (posgresql)
+-- GENERACIÓ DE ZNT SCORE indexat per patient_ref, episode_ref, care_level_ref.
+-- TAULES BASE: mov_events, care_level_events, znt_score
+
+-- ZNT_SCORE_STAGE
+CREATE TABLE p_zero_stage.znt_score_stage as
+(
+with  mov_colap as
+( -- colapsa mov_events per per tenir granularitat episodi, care_level
+Select patient_ref,episode_ref,care_level_ref
+from data_scope.mov_events
+group by patient_ref,episode_ref,care_level_ref
+having patient_ref in
+(select patient_ref
+from data_scope.znt_score
+group by patient_ref) -- utilitza taula znt_SCORE per filtrar 
 ),
-output2 as 
+stay as
+( -- join amb care_level_events per tenir care_level_type (uci, sala etc)
+SELECT m.patient_ref,m.episode_ref, m.care_level_ref,cl.care_level_type_ref,cl.start_date,cl.end_date
+from mov_colap m
+join data_scope.care_level_events cl using(care_level_ref)
+where date(cl.start_date )>'2020-06-001'
+and care_level_type_ref in ('SALA','ICU')
+), 
+new_znt_stay as
+( -- fusio znt amb stay per donar a cada znt un care_level, etc etc. 
+SELECT patient_ref,episode_ref,care_level_ref,care_level_type_ref,start_date,end_date,id,MANDT,ID_SCORE, DATA+HORA AS REG_DATETIME,PATNR,USUARI,VPID,VWERT,POP_UP,ENVIO_MEDXAT_MED,ENVIO_MEDXAT_ENF,ENVIO_EMAIL,VALORS,AILLAT 
+FROM data_scope.znt_score
+JOIN stay using(patient_ref)
+WHERE DATA+HORA between start_date and end_date
+),-- NETEJA DE TAULA ON COLUMNA VALORS FA LA FRASE MALEIDA, JOC DEL TELEFON.
+znt_rank0 
+as -- len of valors column
+    (
+    SELECT *,char_length(valors) as len 
+    FROM new_znt_stay),
+znt_rank1 as 
+-- rank the window function using  ordered len 
+	(
+	select rank() over (partition by patnr ,reg_datetime order by len desc) as rang, z.*  from znt_rank0 z
+    )
+
+select patient_ref,patnr,episode_ref,care_level_ref, care_level_type_ref, start_date, end_date, id, mandt,id_score, reg_datetime ,usuari,vpid,vwert,pop_up,envio_medxat_med,envio_medxat_enf,envio_email,valors, aillat
+from znt_rank1 
+where rang=1 -- només agafo el que té més caracters (el que ha quedat rankejat primer)
+ )
+
+
+
+
+
+-- LAB_STAGE
+-- per correr en servidor pzero (posgresql)
+-- codi per generar els lab_events indexat :
+-- taules base: lab_events, care_level_events, znt_score, lab_dic
+
+
+
+drop table if exists p_zero_stage.lab_stage;
+create table p_zero_stage.lab_stage as
 (
-    select *,  row_number() over (partition by patient_ref order by patient_ref, hosp_adm ) as hosp_adm_seq
-    from output1)
-    select * from output2 
-    order by patient_ref, hosp_adm 
-)
-
-
--- place unique identifiers to hosp_adm and stay_frame
-ALTER TABLE playground.stay_frame ADD COLUMN stay_frame_id SERIAL PRIMARY KEY;
-ALTER TABLE playground.hosp_adm ADD COLUMN hosp_adm_id SERIAL PRIMARY KEY;
-
-
-
-
-
-
-
-
--- CREATION znt_master
--- merge   hosp_adm, stay_id wiht  znt_loc_stay, not repeated columns selection, name change, filter the vitals rows that has 
--- no stay_frame_id
--- V2: added icu and intermediate long of stay and normal ward long of stay
-
-DROP TABLE IF EXISTS playground.znt_master;
-CREATE TABLE playground.znt_master as
-(
-SELECT 
-    z.patient_ref,
-    z.ingres as hosp_adm_date,
-    alta as hosp_discharge_date,
-    hosp_adm_seq,
-    hosp_adm_id,
-    stay_frame_id,
-    stay_frame_seq,
-    care_level as evolution,
-    los,
-    los_uci_int,
-  --
-    id,
-    mandt,
-    id_score,
-    data,
-    hora,
-    patnr,
-    z.ou_loc_ref,
-    start_date as loc_adm_date,
-    usuari,
-    vpid,
-    vwert,
-    z.envio_medxat_med,
-    envio_medxat_enf,
-    valors,
-    aillat
-  
-
-FROM playground.znt_phi_loc_stay z 
-left join playground.hosp_adm adm  on z.patient_ref=adm.patient_ref and z.ingres=adm.hosp_adm 
-left join playground.stay_frame sf  on z.patient_ref=sf.patient_ref and z.ingres=sf.ingres and z.start_date=sf.loc_adm_date
-where stay_frame_id IS NOT NULL -- filter for all rows that have stay_frame
-);
-
-
-
-
-
--- creació stay_scope : colapsa znt_master a nivell de stay frames i borrar columnes de dades.
--- V2: added icu and intermediate long of stay and normal ward long of stay
-DROP TABLE IF EXISTS playground.stay_scope;
-CREATE TABLE playground.stay_scope as
-(
-SELECT 
-    patient_ref,
-    hosp_adm_id,
-    max(hosp_adm_date) as hosp_adm_date,
-    max(hosp_discharge_date) as hosp_discharge_date,
-    max(hosp_adm_seq) as hosp_adm_seq ,
-    stay_frame_id,
-    max(stay_frame_seq) as stay_frame_seq,
-    max(evolution) as evolution,
-    max(los) as los,
-    max(los_uci_int) as los_uci_int
-FROM playground.znt_master
-GROUP BY patient_ref,hosp_adm_id,stay_frame_id
-);
-
-
--- creació znt_scope: elimina columnes cd znt_master i només deixar dades i claus de conexio amb stay_scope
-
-DROP TABLE IF EXISTS playground.znt_scope;
-CREATE TABLE playground.znt_scope as
-(
-SELECT 
-    patient_ref,
-    hosp_adm_id,
-    stay_frame_id,
-  --
-    id,
-    mandt,
-    id_score,
-    data,
-    hora,
-    patnr,
-    ou_loc_ref,
-    loc_adm_date,
-    usuari,
-    vpid,
-    vwert,
-    envio_medxat_med,
-    envio_medxat_enf,
-    valors,
-    aillat
-FROM playground.znt_master
-);
-
-
-
--- Adding exitus data to stay_scope obtaining stay_scope_exitus
-
-DROP TABLE IF EXISTS playground.stay_scope_exitus;
-CREATE TABLE playground.stay_scope_exitus as
-(
-SELECT ss.*,exitus_date
-FROM playground.stay_scope ss left join playground.exitus_scope  es on ss.patient_ref=es.patient_id
+Select distinct le.patient_ref,le.episode_ref,le.care_level_ref,ou_med_ref,care_level_type_ref,
+le.extrac_date,le.lab_ref, ld.descr, result_num, units
+from data_scope.lab_events le
+join data_scope.care_level_events using(care_level_ref)
+join data_scope.lab_dic ld using(lab_ref)
+where date(extrac_date ) > '2020-06-01'
+and care_level_type_ref in ('SALA','ICU')
+and le.patient_ref in (select patient_ref
+     from data_scope.znt_score
+    group by patient_ref)
 )
 
 
 
--- integració de labs en el sistema: proporcionar a cada lab row un stay_frame_id i un hosp_adm_id
--- colapsar taula master fins a granularitat dia(incloure patient_ref, h_adm_id, stay_frame_id) i fusionar amb labs a nivell de patient_id i data.
--- cada row de lab tindra un episodi, un patient i un stay freme a part de dia i hora per veure sequencia. 
 
 
-DROP TABLE IF EXISTS p_zero_stage.lab_stage;
-CREATE TABLE p_zero_stage.lab_stage as
-(
-with output1 as -- colapsa master(master es znt_score+hosp_adm_id+stay_frame_id) a nivell de dia.
-(
-Select patient_ref, hosp_adm_id, stay_frame_id, data 
-from playground.znt_master 
-group by patient_ref, hosp_adm_id, stay_frame_id, data
+
+
+-- STAY_EVENTS_STAGE
+-- per correr en servidor pzero (posgresql)
+-- codi per generar taula stay_events_stage   :
+-- taules base: mov_events, care_level_events, znt_score, episodi_events
+
+CREATE TABLE p_zero_stage.stay_events_stage as(
+
+with znt_colap as
+( -- crea filtre per agafar només pacients que estan a znt_score
+select patient_ref
+from data_scope.znt_score
+group by patient_ref
 ),
-output2 as -- extreu data de datetime per preparara la fusio amb output1(master collapsat a dia)
-(
-    Select  patient_ref, date(extrac_date) as data, extrac_date,res_date,lab_ref,result_num
-    from data_scope.lab_scope
-    where extrac_date is not null
-
+mov_colap as
+( -- colapsa mov_events per per tenir granularitat episodi, care_level
+Select patient_ref,episode_ref,care_level_ref
+from data_scope.mov_events
+group by patient_ref,episode_ref,care_level_ref
+having patient_ref in
+(select patient_ref from znt_colap)
+),
+stay as
+( -- join amb care_level per tenir care_level_type (uci, sala etc)
+SELECT m.patient_ref,m.episode_ref, m.care_level_ref,cl.care_level_type_ref,cl.start_date,cl.end_date
+from mov_colap m
+join data_scope.care_level_events cl using(care_level_ref)
+where date(cl.start_date )>'2020-06-001'
+), 
+new_stay as
+( -- afegeix columnes a l'stay amb granularitat care_level: num ordre de stay dins ingres i si va despres a uci o no i el los de icu
+select *,
+rank() over (partition by patient_ref,episode_ref -- ordre dins ingres
+    order by patient_ref, episode_ref,care_level_ref, start_date) 
+    as seq_num,
+case -- to_icu
+    when care_level_type_ref='SALA' and lead(care_level_type_ref='ICU') over (partition by patient_ref,episode_ref 
+    order by patient_ref, episode_ref,care_level_ref, start_date) then 1
+    else 0
+    end as to_icu,
+case -- icu_los
+        when care_level_type_ref='SALA' and lead(care_level_type_ref='ICU') over (partition by patient_ref,episode_ref 
+    order by patient_ref, episode_ref,care_level_ref, start_date)
+    then DATE_PART('day', lead(end_date) over (partition by patient_ref,episode_ref 
+    order by patient_ref, episode_ref,care_level_ref, start_date) - lead(start_date) over (partition by patient_ref,episode_ref 
+    order by patient_ref, episode_ref,care_level_ref, start_date))
+    
+    -- mysql syntax:
+    -- then datediff( lead(end_date) over (partition by patient_ref,episode_ref 
+    -- order by patient_ref, episode_ref,care_level_ref, start_date),lead(start_date) over (partition by patient_ref,episode_ref 
+    -- order by patient_ref, episode_ref,care_level_ref, start_date))
+    end as icu_los
+from stay
+where care_level_type_ref in ('SALA','ICU')
+order by patient_ref, episode_ref,care_level_ref, start_date
+),
+new_stay_hosp_los as( -- codi per afigir hosp_los
+select ns.*,DATE_PART('day',epi.end_date-epi.start_date) as hosp_los
+from new_stay ns
+join data_scope.episode_events epi using(episode_ref)
 )
-select output1.patient_ref,hosp_adm_id, stay_frame_id,extrac_date,res_date,lab_ref,result_num 
-from output1 join output2 --fusiona master collapsat a dia amb labs per patient_id i data
-on output1.patient_ref=output2.patient_ref 
-and output1.data=output2.data
+select * from new_stay_hosp_los
+order by patient_ref, episode_ref,care_level_ref, start_date
+    
 )
 
+-- DIAG_EVENTS_STAGE
+-- per correr en servidor pzero (posgresql)
+-- codi per generar taula diag_events_stage   :
+-- taules base: diag_events, diag_dic
+
+CREATE TABLE p_zero_stage.diag_events_stage as (
+SELECT patient_ref, episode_ref,  cie,cie_ref,class, reg_date,descr
+FROM data_scope.diag_events
+JOIN data_scope.diag_dic using(diag_ref)
+where cie = 'CIE-10'
+order by patient_ref,reg_date
+)
