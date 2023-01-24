@@ -52,7 +52,7 @@ SELECT * FROM datascope.diag_sap_dic;
 
 
 
-
+-- EVERYTHING BEFORE HERE HAPPENS ON CLINIC SERVER, BEFORE data_scope
 -------------------------------------- BASE TABLES CREATE + INGESTIONS--------------------------------------
 
 
