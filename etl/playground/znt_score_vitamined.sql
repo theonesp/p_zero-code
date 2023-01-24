@@ -9,7 +9,7 @@
 
 -- MOV_EVENTS: Extracció de mov_events de datalake per carregar al p_zero datascope
 with znt_colap as (
-(select distinct patient_ref from datascope.znt_score)
+(select distinct patient_ref from datascope.znt_scope)
 )
 SELECT * FROM datascope.mov_events
 where patient_ref in (select patient_ref from znt_colap)
@@ -17,7 +17,7 @@ and date(start_date) > '2020-06-01'
 
 -- CARE_LEVEL_EVENTS: Extracció de care_level_events de datalake per carregar al p_zero datascope
 with znt_colap as (
-(select distinct patient_ref from datascope.znt_score)
+(select distinct patient_ref from datascope.znt_scope)
 )
 SELECT * FROM datascope.care_level_events
 where patient_ref in (select patient_ref from znt_colap)
@@ -27,7 +27,7 @@ and date(start_date) > '2020-06-01'
 
 -- EPISODE_EVENTS: extracció taula episode_events
 with znt_colap as (
-(select distinct patient_ref from datascope.znt_score)
+(select distinct patient_ref from datascope.znt_scope)
 )
 SELECT * FROM datascope.episodi_events
 where patient_ref in (select patient_ref from znt_colap)
@@ -37,7 +37,7 @@ and date(start_date) > '2020-06-01'
 -- extracció diagnostics de datascope (mysql)
 
 with znt_colap as (
-(select distinct patient_ref from datascope.znt_score)
+(select distinct patient_ref from datascope.znt_scope)
 )
 SELECT * FROM datascope.diag_events
 where patient_ref in (select patient_ref from znt_colap)
@@ -56,11 +56,11 @@ SELECT * FROM datascope.diag_sap_dic;
 -------------------------------------- BASE TABLES CREATE + INGESTIONS--------------------------------------
 
 
---- ZNT_SCORE
+--- ZNT_SCOPE
 
-DROP TABLE IF EXISTS data_scope.znt_score;
+DROP TABLE IF EXISTS data_scope.znt_scope;
 
-CREATE TABLE data_scope.znt_score (
+CREATE TABLE data_scope.znt_scope (
 	
     id varchar DEFAULT NULL,
     MANDT int DEFAULT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE data_scope.znt_score (
 
 );
 
-copy data_scope.znt_score  FROM '/home/admin/xavi_cabin/znt_score.csv' DELIMITER ',' CSV HEADER;
+copy data_scope.znt_scope  FROM '/home/admin/xavi_cabin/znt_scope.csv' DELIMITER ',' CSV HEADER;
 
 
 
